@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option go_package = "./;vulnerability";
+
+package vulnerability;
+
+service Vulnerability {
+    rpc Detect (DetectRequest) returns (DetectResponse){}
+}
+
+message DetectRequest{
+    string Contract_sourcecode = 1;
+}
+
+message DetectResponse{
+    bool has_vulnerability = 1;
+    string message = 2;
+}

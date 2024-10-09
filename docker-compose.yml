@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    hostname: mysql-new-server
+    container_name: mysql-new-server
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456789
+      MYSQL_DATABASE: vul_detect
+    ports:
+      - "3308:3306"
+    volumes:
+      - /root/vulnerability_model/data/mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:latest
+    hostname: redis-new-server
+    container_name: redis-new-server
+    restart: always
+    ports:
+      - "6380:6379"
+    volumes:
+      - /root/vulnerability_model/data/redis_data:/data
+
+  ginweb:
+    image: lzksdocker/backend-ginweb
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "7070-7072:7070"
+
+  client:
+    image: lzksdocker/backend-client
+    container_name: client-service
+    depends_on:
+      - ginweb
+  
+  rabbitmq:
+    image: rabbitmq:management
+    hostname: rabbitmq-server
+    container_name: rabbitmq-server
+    restart: always
+    ports:
+      - "5673:5672"   # RabbitMQ 默认通信端口
+      - "15672:15672" # RabbitMQ 管理界面端口
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+    - /root/vulnerability_model/data/rabbitmq_data:/var/lib/rabbitmq
+
+  server_app:
+    image: lzksdocker/server_app:latest
+    container_name: grpc_server_app
+    restart: always
+    depends_on:
+      - rabbitmq
+      - mysql
+      - redis
+    ports:
+      - "50051:50051"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure

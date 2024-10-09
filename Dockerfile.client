@@ -1,0 +1,19 @@
+# Dockerfile.client
+FROM golang:1.22-alpine
+
+RUN go env -w GO111MODULE=on \
+    && go env -w GOPROXY=https://goproxy.cn,direct
+
+WORKDIR /app
+
+COPY . .
+
+RUN go build -o client_app main.go
+
+RUN chmod +x client_app
+
+RUN ls -l
+
+EXPOSE 50051
+
+CMD ["/app/client_app", "client"]
