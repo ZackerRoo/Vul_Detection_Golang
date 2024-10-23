@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"time"
-
 	pb "backend/vulnerability" // 替换为实际的pb文件路径
 
 	"google.golang.org/grpc"
