@@ -16,7 +16,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
 )
